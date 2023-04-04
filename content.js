@@ -140,7 +140,6 @@ function checkUrlChange() {
     const currentUrl = window.location.href;
 
     if (currentUrl !== previousUrl) {
-        console.log('URL changed');
         videoProgressRestored = false;
         previousUrl = currentUrl;
     }
@@ -148,7 +147,6 @@ function checkUrlChange() {
     if (!videoProgressRestored) {
         const urlParts = currentUrl.split('/');
         const videoId = urlParts[urlParts.length - 1];
-        console.log(videoId);
 
         chrome.storage.local.get(storageKey, (data) => {
             const progressData = data[storageKey] || {};
