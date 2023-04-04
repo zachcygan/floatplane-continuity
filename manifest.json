@@ -6,7 +6,8 @@
     "permissions": [
         "tabs",
         "storage",
-        "https://www.floatplane.com/*"
+        "https://www.floatplane.com/*",
+        "https://www.beta.floatplane.com/*"
     ],
     "content_scripts": [
         {
@@ -15,7 +16,9 @@
             ],
             "js": [
                 "content.js"
-            ]
+            ],
+            "run_at": "document_idle"
+            
         }
     ],
     "icons": {

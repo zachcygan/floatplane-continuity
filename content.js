@@ -1,9 +1,10 @@
 const videoSelector = '.video-js'; // Update this if the video element selector changes on the website
+const playButton = document.querySelector('.vjs-big-play-button')
 const storageKey = 'floatplane_video_progress';
+let videoProgressRestored = false;
 
 let currentVideo;
 let currentVideoId;
-
 
 function saveVideoProgress() {
     const video = document.querySelector(videoSelector);
@@ -11,22 +12,15 @@ function saveVideoProgress() {
         currentVideo = window.location.href;
         currentVideoId = currentVideo.split('/');
         currentVideoId = currentVideoId[currentVideoId.length - 1];
-        const videoTime = document.querySelector('.vjs-tech')
-
-        if (videoTime.currentTime === 10) {
-            videoTime.currentTime = 5;
-        }
-
 
         chrome.storage.local.get(storageKey, (data) => {
-            const savedData = data[storageKey];
-            console.log(savedData)
+            const savedData = data[storageKey] || {};
+            const currentVideoProgress = document.querySelector('.vjs-tech').currentTime;
 
-            let currentVideoProgress = document.querySelector('.vjs-tech').currentTime;
-            if (!savedData || savedData.currentVideoId !== currentVideoId || currentVideoProgress > savedData.currentVideoProgress || savedData.currentVideoProgress === 'NaN') {
-                const progressData = { currentVideoId, currentVideoProgress };
-                chrome.storage.local.set({ [storageKey]: progressData }, () => {
-                    console.log('Video progress saved:', progressData);
+            if (!savedData[currentVideoId] || currentVideoProgress > savedData[currentVideoId].currentTime) {
+                savedData[currentVideoId] = { currentTime: currentVideoProgress };
+                chrome.storage.local.set({ [storageKey]: savedData }, () => {
+                    console.log('Video progress saved:', currentVideoId, currentVideoProgress);
                 });
             }
         });
@@ -41,52 +35,137 @@ function restoreVideoProgress() {
         chrome.storage.local.get(storageKey, (data) => {
             let currentLink = window.location.href;
             let currentLinkId = currentLink.split('/');
-            currentLinkId = currentLinkId[currentLinkId.length - 1]
+            let currentVideoId = currentLinkId[currentLinkId.length - 1]
 
-            const progressData = data[storageKey];
-            const videoId = progressData.currentVideoId
-            const videoPostion = progressData.currentVideoProgress;
+            const progressData = data[storageKey] || {};
 
-            if (currentLinkId === videoId) {
-                console.log('IDS MATCH')
-                console.log(videoPostion)
+            if (progressData[currentVideoId]) {
+                console.log(progressData[currentVideoId].currentTime)
                 let videoPlayer = document.querySelector('.vjs-tech');
-                videoPlayer.currentTime = videoPostion;
-            }
+                console.log(videoPlayer)
+                videoPlayer.currentTime = progressData[currentLinkId].currentTime;
+                console.log(videoPlayer)
+            } 
         });
     }
 }
 
 let playing = false;
 let restoreInProgress = false;
-const observer = new MutationObserver((mutations) => {
-    const video = document.querySelector(videoSelector)
-    mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-            const oldClass = mutation.oldValue;
-            const newClass = video.getAttribute('class');
-            const hasStartedClassName = 'vjs-has-started';
 
-            if (newClass.includes(hasStartedClassName) && !oldClass.includes(hasStartedClassName)) {
-                console.log('Class "vjs-has-started" added to the element');
-                
-                playing = true;
-            }
-        }
-    })
+document.addEventListener('DOMContentLoaded', (event) => {
+    // Your window.onload code here
+    const video = document.querySelector(videoSelector);
+    if (video) {
+        chrome.storage.local.get(storageKey, (data) => {
+            let currentLink = window.location.href;
+            let currentLinkId = currentLink.split('/');
+            let currentVideoId = currentLinkId[currentLinkId.length - 1]
 
-    if (!restoreInProgress) {
-        restoreInProgress = true;
-        restoreVideoProgress();
+            const progressData = data[storageKey] || {};
+            console.log(progressData[currentVideoId])
+
+            if (progressData[currentVideoId]) {
+                console.log('IDS MATCH')
+                console.log(progressData[currentVideoId].currentTime)
+                let videoPlayer = document.querySelector('.vjs-tech');
+                console.log(videoPlayer)
+            } 
+        });
     }
-})
+});
+
+// window.onload = (event) => {
+//     setTimeout(() => {
+//         chrome.storage.local.get(storageKey, (data) => {
+//             let currentLink = window.location.href;
+//             let currentLinkId = currentLink.split('/');
+//             let currentVideoId = currentLinkId[currentLinkId.length - 1]
+
+//             const progressData = data[storageKey] || {};
+//             console.log(progressData)
+
+//             if (progressData[currentVideoId]) {
+//                 console.log('IDS MATCH')
+//                 console.log(progressData[currentVideoId].currentTime)
+//                 let videoPlayer = document.querySelector('.vjs-tech');
+//                 videoPlayer.currentTime = progressData[currentVideoId].currentTime
+//                 console.log(videoPlayer)
+//             } 
+//         });
+//     }, 1000);
+// };
+
+// window.onload = () => {
+//     setTimeout(() => {
+//         console.log('loaded')
+//         chrome.storage.local.get(storageKey, (data) => {
+//             const progressData = data[storageKey] || {};
+//             console.log(progressData)
+//         });
+//     }, 1000);
+// };
+
+let previousUrl = window.location.href;
+
+// function checkUrlChange() {
+
+//     const currentUrl = window.location.href;
+//     const urlParts = currentUrl.split('/')
+//     const videoId = urlParts[urlParts.length - 1]
+//     console.log(videoId)
+
+//     chrome.storage.local.get(storageKey, (data) => {
+//         const progressData = data[storageKey] || {};
+
+        
+//         if (progressData.hasOwnProperty(videoId)) {
+//             restoreVideoProgress();
+//             let videoPlayer = document.querySelector('.vjs-tech');
+//             console.log(videoPlayer)
+//             videoPlayer.currentTime = progressData[videoId].currentTime
+//         }
 
 
-window.onload = (event) => {
-    setTimeout(() => {
-        const video = document.querySelector(videoSelector);
-        let progressBar = document.querySelector('.vjs-progress-holder');
+//     });
 
-        observer.observe(video, { attributes: true, attributeOldValue: true });
-    }, 1000);
-};
+//     if (currentUrl !== previousUrl) {
+//         console.log('video ID:', videoId);
+//         previousUrl = currentUrl;
+//     }
+
+// }
+
+function checkUrlChange() {
+    const currentUrl = window.location.href;
+
+    if (currentUrl !== previousUrl) {
+        console.log('URL changed');
+        videoProgressRestored = false;
+        previousUrl = currentUrl;
+    }
+
+    if (!videoProgressRestored) {
+        const urlParts = currentUrl.split('/');
+        const videoId = urlParts[urlParts.length - 1];
+        console.log(videoId);
+
+        chrome.storage.local.get(storageKey, (data) => {
+            const progressData = data[storageKey] || {};
+
+            if (progressData.hasOwnProperty(videoId)) {
+                restoreVideoProgress();
+                const videoPlayer = document.querySelector('.vjs-tech');
+                console.log(videoPlayer);
+                videoPlayer.currentTime = progressData[videoId].currentTime;
+                videoProgressRestored = true;
+            }
+        });
+    }
+}
+
+setInterval(checkUrlChange, 1000);
+
+
+
+
