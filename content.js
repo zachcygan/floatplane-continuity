@@ -75,66 +75,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
 });
 
-// window.onload = (event) => {
-//     setTimeout(() => {
-//         chrome.storage.local.get(storageKey, (data) => {
-//             let currentLink = window.location.href;
-//             let currentLinkId = currentLink.split('/');
-//             let currentVideoId = currentLinkId[currentLinkId.length - 1]
-
-//             const progressData = data[storageKey] || {};
-//             console.log(progressData)
-
-//             if (progressData[currentVideoId]) {
-//                 console.log('IDS MATCH')
-//                 console.log(progressData[currentVideoId].currentTime)
-//                 let videoPlayer = document.querySelector('.vjs-tech');
-//                 videoPlayer.currentTime = progressData[currentVideoId].currentTime
-//                 console.log(videoPlayer)
-//             } 
-//         });
-//     }, 1000);
-// };
-
-// window.onload = () => {
-//     setTimeout(() => {
-//         console.log('loaded')
-//         chrome.storage.local.get(storageKey, (data) => {
-//             const progressData = data[storageKey] || {};
-//             console.log(progressData)
-//         });
-//     }, 1000);
-// };
-
 let previousUrl = window.location.href;
-
-// function checkUrlChange() {
-
-//     const currentUrl = window.location.href;
-//     const urlParts = currentUrl.split('/')
-//     const videoId = urlParts[urlParts.length - 1]
-//     console.log(videoId)
-
-//     chrome.storage.local.get(storageKey, (data) => {
-//         const progressData = data[storageKey] || {};
-
-        
-//         if (progressData.hasOwnProperty(videoId)) {
-//             restoreVideoProgress();
-//             let videoPlayer = document.querySelector('.vjs-tech');
-//             console.log(videoPlayer)
-//             videoPlayer.currentTime = progressData[videoId].currentTime
-//         }
-
-
-//     });
-
-//     if (currentUrl !== previousUrl) {
-//         console.log('video ID:', videoId);
-//         previousUrl = currentUrl;
-//     }
-
-// }
 
 function checkUrlChange() {
     const currentUrl = window.location.href;
