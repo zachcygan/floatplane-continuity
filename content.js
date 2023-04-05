@@ -179,18 +179,28 @@ async function checkUrlChange() {
             });
         });
 
-        
         if (progressData.hasOwnProperty(videoId)) {
             const videoPlayer = document.querySelector('.vjs-tech');
-            if (videoPlayer) {
-                videoPlayer.addEventListener('canplaythrough', () => {
-                    videoPlayer.currentTime = progressData[videoId].currentTime;
-                    console.log('video restored');
-                    videoProgressRestored = true;
-                }, { once: true });
+            if (videoPlayer) { // Make sure videoPlayer is not null
+                await waitForVideoReady(videoPlayer);
+                videoPlayer.currentTime = progressData[videoId].currentTime;
+                console.log('video restored');
+                videoProgressRestored = true;
             }
         }
     }
+}
+
+function waitForVideoReady(videoPlayer) {
+    return new Promise((resolve) => {
+        if (videoPlayer.readyState >= 1) {
+            resolve();
+        } else {
+            videoPlayer.addEventListener('loadedmetadata', () => {
+                resolve();
+            });
+        }
+    });
 }
 
 setInterval(checkUrlChange, 1000);
