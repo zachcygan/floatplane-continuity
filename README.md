@@ -1,4 +1,4 @@
-# Floatplane Continuation
+# Floatplane Continuity
 
 ## Description
 
@@ -8,7 +8,7 @@ NOTE: This currently does not work on https://beta.floatplane.com
 
 ## Installation
 
-The github repository is available at https://github.com/zachcygan/Floatplane-Continuity.
+The github repository is available at https://github.com/zachcygan/floatplane-continuity.
 
 ## Instructions
 
